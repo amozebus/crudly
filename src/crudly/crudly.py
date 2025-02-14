@@ -115,7 +115,7 @@ class Crudly:
             for k, v in schema.model_dump().items():
                 setattr(obj, k, v)
             
-            await db_session.add(obj)
+            db_session.add(obj)
             await db_session.commit()
             await db_session.close()
 
