@@ -1,10 +1,15 @@
 [project]
 name = "crudly"
-version = "0.1"
+version = "2025.2.14"
 description = "Super simple FastAPI CRUD generator for SQLModel ORM"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.115.8",
     "sqlmodel>=0.0.22",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black"
 ]
