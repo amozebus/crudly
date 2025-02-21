@@ -1,7 +1,10 @@
 [project]
 name = "crudly"
-version = "2025.2.14.2"
+version = "2025.2.22"
 description = "Super simple FastAPI CRUD generator for SQLModel ORM"
+authors = [
+    { name = "amozebus", email = "amozebus@gmail.com" }
+]
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]

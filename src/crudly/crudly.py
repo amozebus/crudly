@@ -8,6 +8,8 @@ from sqlmodel import SQLModel, select
 
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from .exceptions import ObjectNotFound
+
 class Crudly:
     def __new__(
         self,
@@ -76,29 +78,34 @@ class Crudly:
         @router.get(
             "/",
             response_model=list[model],
-            description=f"Get {model.__name__} object"
+            description=f"Get all {model.__name__} model objects"
         )
         async def read_all(
             db_session: Annotated[AsyncSession, Depends(db_session_generator)],
         ):
-            result = await db_session.exec(select(model))
+            res = await db_session.exec(select(model))
             await db_session.close()
 
-            return result.all()
+            return res.all()
 
         @router.get(
             "/{id}",
             response_model=model,
-            description=f"Get all {model.__name__} objects"
+            description=f"Get {model.__name__} object"
         )
         async def read(
             id: int,
             db_session: Annotated[AsyncSession, Depends(db_session_generator)],
         ):
-            result = await db_session.exec(select(model).where(model.id == id))
+            res = await db_session.exec(select(model).where(model.id == id))
             await db_session.close()
 
-            return result.first()
+            obj = res.first()
+
+            if not obj:
+                raise ObjectNotFound(model, id)
+            
+            return obj
         
         @router.patch(
             "/{id}",
@@ -112,6 +119,9 @@ class Crudly:
         ):
             obj = await read(id, db_session)
 
+            if not obj:
+                raise ObjectNotFound(model, id)
+
             for k, v in schema.model_dump().items():
                 setattr(obj, k, v)
             
@@ -123,19 +133,24 @@ class Crudly:
     
         @router.delete(
             "/{id}",
-            response_model=model,
+            response_model=dict[str, str],
             description=f"Delete {model.__name__} object"
         )
         async def delete(
             id: int,
             db_session: Annotated[AsyncSession, Depends(db_session_generator)],
         ):
-            await db_session.delete(await read(id, db_session))
+            obj = await read(id, db_session)
+
+            if not obj:
+                raise ObjectNotFound(model, id)
+
+            await db_session.delete(obj)
             await db_session.commit()
             await db_session.close()
 
             return {
-                "message": "Object successfully deleted"
+                "message": f"{model.__name__} object with id {id} successfully deleted"
             }
         
         return router
