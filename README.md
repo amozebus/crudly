@@ -1,6 +1,6 @@
 <div align="center">
 
-<img alt="Crudly" src="./.assets/title.png" width="450" height="150">
+<img alt="Crudly" src="./.assets/crudly.png" height="200">
 
 Super simple FastAPI CRUD generator for async SQLModel ORM
 
