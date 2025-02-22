@@ -25,9 +25,26 @@ class Post(SQLModel, table=True):
     id: int = Field(primary_key=True, nullable=False)
     title: str = Field(nullable=False)
     text: str = Field(nullable=False)
+
 ```
 
-2. Create database async session generator
+2. Create schemas for model object creation and updation:
+
+`schemas/posts.py`:
+
+```python
+from pydantic import BaseModel
+
+class PostCreateSchema(BaseModel):
+    title: str
+    text: str
+
+class PostUpdateSchema(PostCreateSchema):
+    pass
+
+```
+
+3. Create database async session generator
 
 `database/session.py`:
 
@@ -49,9 +66,10 @@ session_maker = sessionmaker(
 
 async def get_db_session() -> AsyncGenerator[AsyncSession, None]:    
     yield session_maker()
+
 ```
 
-3. Create FastAPI app and include Crudly router to it
+4. Create FastAPI app and include Crudly router to it
 
 > [!NOTE]
 > Crudly creates router without prefix
@@ -80,6 +98,7 @@ app.include_router(
     prefix="/posts",
     tags=["Posts"]
 )
+
 ```
 
 ### Swagger
